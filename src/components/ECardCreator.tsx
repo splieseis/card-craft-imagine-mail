@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,7 +22,10 @@ const ECardCreator = () => {
   const [step, setStep] = useState<"image" | "message" | "recipient">("image");
 
   useEffect(() => {
-    initializeStorage().catch(console.error);
+    initializeStorage().catch(error => {
+      console.error("Failed to initialize storage:", error);
+      toast.error("Failed to initialize storage. Some features may not work properly.");
+    });
   }, []);
 
   useEffect(() => {

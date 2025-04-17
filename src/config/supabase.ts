@@ -1,14 +1,7 @@
 
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
-// Initialize Supabase client
-// Replace these with your actual Supabase credentials
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://your-supabase-url.supabase.co";
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "your-supabase-anon-key";
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Create a bucket for e-card images if it doesn't exist
+// Initialize storage for e-card images
 export const initializeStorage = async () => {
   try {
     const { data, error } = await supabase.storage.getBucket("ecard-images");
