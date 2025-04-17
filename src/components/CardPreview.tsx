@@ -23,7 +23,7 @@ const CardPreview = ({ imageUrl, message, className }: CardPreviewProps) => {
             loading="eager"
             onError={(e) => {
               console.error("Image failed to load:", imageUrl);
-              e.currentTarget.src = "https://picsum.photos/768/512"; // Fallback image
+              e.currentTarget.src = "/placeholder.svg"; // Use local placeholder
             }}
           />
         ) : (

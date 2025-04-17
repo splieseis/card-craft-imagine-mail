@@ -1,5 +1,5 @@
 
-import { supabase } from "@/config/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Uploads an image from URL to Supabase storage
@@ -45,3 +45,4 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     throw new Error("Failed to upload image. Please try again.");
   }
 };
+
