@@ -9,6 +9,9 @@ export const generateImage = async (prompt: string): Promise<string> => {
 
     if (error) throw error;
     
+    console.log("Response from generate-image function:", data);
+    
+    // Handle the response format correctly
     const imageUrl = Array.isArray(data.output) ? data.output[0] : data.output;
     if (!imageUrl) {
       throw new Error('No image was generated');

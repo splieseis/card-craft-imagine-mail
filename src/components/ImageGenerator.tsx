@@ -28,6 +28,7 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
     
     try {
       const imageUrl = await generateImage(prompt);
+      console.log("Generated image URL:", imageUrl); // Debug log
       onImageGenerated(imageUrl);
       setIsGeneratingFirstImage(false);
       toast.success("Image generated successfully!");
@@ -91,9 +92,6 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
             {error}
-            <p className="mt-2 text-sm">
-              Note: The application is currently using placeholder images due to API connectivity issues.
-            </p>
           </AlertDescription>
         </Alert>
       )}

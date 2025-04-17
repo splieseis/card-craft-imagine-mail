@@ -21,6 +21,10 @@ const CardPreview = ({ imageUrl, message, className }: CardPreviewProps) => {
             alt="Generated card preview" 
             className="w-full h-full object-cover"
             loading="eager"
+            onError={(e) => {
+              console.error("Image failed to load:", imageUrl);
+              e.currentTarget.src = "https://picsum.photos/768/512"; // Fallback image
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-muted-foreground">
