@@ -21,7 +21,7 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     const fileName = `ecard_${Date.now()}_${randomId}.png`;
     const filePath = `ecards/${fileName}`;
     
-    // Upload to Supabase storage
+    // Upload to Supabase storage with public policy
     const { data, error } = await supabase.storage
       .from("ecard-images")
       .upload(filePath, blob, {
@@ -31,7 +31,11 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
       });
     
     if (error) {
-      throw error;
+      console.error("Error uploading image to storage:", error);
+      
+      // Fallback to just using the original URL if storage fails
+      // This ensures the app doesn't break completely
+      return imageUrl;
     }
     
     // Get public URL
@@ -42,7 +46,8 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     return publicUrl;
   } catch (error) {
     console.error("Error uploading image:", error);
-    throw new Error("Failed to upload image. Please try again.");
+    
+    // Return the original image URL as fallback
+    return imageUrl;
   }
 };
-

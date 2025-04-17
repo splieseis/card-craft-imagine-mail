@@ -18,28 +18,33 @@ export const generateImage = async (prompt: string): Promise<string> => {
       throw new Error('No image was generated');
     }
 
-    // Upload image to Supabase storage
-    const storageUrl = await uploadImage(imageUrl);
-
-    // Store metadata in the database
-    const { error: dbError } = await supabase
-      .from('generated_images')
-      .insert({
-        prompt,
-        original_url: imageUrl,
-        storage_url: storageUrl,
-      });
-
-    if (dbError) {
-      console.error('Error storing image metadata:', dbError);
-      // Continue with the storage URL even if metadata storage fails
+    try {
+      // Upload image to Supabase storage
+      const storageUrl = await uploadImage(imageUrl);
+      
+      try {
+        // Store metadata in the database, but don't fail if this doesn't work
+        await supabase
+          .from('generated_images')
+          .insert({
+            prompt,
+            original_url: imageUrl,
+            storage_url: storageUrl,
+          });
+      } catch (dbError) {
+        console.error('Error storing image metadata:', dbError);
+        // Continue even if metadata storage fails
+      }
+      
+      // Return the storage URL for display
+      return storageUrl;
+    } catch (storageError) {
+      console.error('Storage error, falling back to original URL:', storageError);
+      // Fallback to the original URL if storage fails
+      return imageUrl;
     }
-
-    // Return the storage URL for display
-    return storageUrl;
   } catch (error) {
     console.error('Error generating image:', error);
     throw error;
   }
 };
-
