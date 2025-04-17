@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,8 +9,12 @@ import { initializeStorage } from "@/config/supabase";
 import CreateTabContent from "./ecard/CreateTabContent";
 import PreviewActions from "./ecard/PreviewActions";
 
+const STORAGE_KEY = "ecard_last_image";
+
 const ECardCreator = () => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEY) || null;
+  });
   const [message, setMessage] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [activeTab, setActiveTab] = useState("create");
@@ -21,6 +24,14 @@ const ECardCreator = () => {
   useEffect(() => {
     initializeStorage().catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (imageUrl) {
+      localStorage.setItem(STORAGE_KEY, imageUrl);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [imageUrl]);
 
   const handleImageGenerated = (url: string) => {
     console.log("Image generated, setting URL:", url);
@@ -51,7 +62,6 @@ const ECardCreator = () => {
     try {
       toast.info("Preparing your e-card...");
       
-      // Make sure we're using the most up-to-date imageUrl
       let finalImageUrl = imageUrl;
       if (imageUrl && !imageUrl.includes('supabase')) {
         console.log("Uploading image to storage before sending:", imageUrl);
@@ -75,7 +85,6 @@ const ECardCreator = () => {
 
       toast.success("Your e-card has been sent successfully!");
       
-      // Reset form
       setImageUrl(null);
       setMessage("");
       setRecipientEmail("");
