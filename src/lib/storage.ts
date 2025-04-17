@@ -42,8 +42,8 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     if (error) {
       console.error("Error uploading image to storage:", error);
       
-      // Fallback to just using the original URL if storage fails
-      return imageUrl;
+      // Throw error for better handling
+      throw new Error(`Storage error: ${error.message}`);
     }
     
     // Get public URL - make sure we're using the right format
@@ -55,8 +55,7 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     return publicUrl;
   } catch (error) {
     console.error("Error uploading image:", error);
-    
-    // Return the original image URL as fallback
-    return imageUrl;
+    // Re-throw the error for better error handling upstream
+    throw error;
   }
 };

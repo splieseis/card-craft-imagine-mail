@@ -26,14 +26,21 @@ export const initializeStorage = async () => {
         
         if (createError) {
           console.error("Error creating bucket:", createError);
+          throw new Error(`Failed to create storage bucket: ${createError.message}`);
         } else {
           console.log("Bucket created successfully:", data);
         }
+      } else {
+        // This is a different error than "does not exist"
+        throw bucketError;
       }
     } else {
       console.log("Bucket already exists:", bucketData);
     }
+    
+    return true;
   } catch (error) {
     console.error("Error initializing storage:", error);
+    throw error;
   }
 };

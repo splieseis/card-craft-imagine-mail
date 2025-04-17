@@ -24,10 +24,14 @@ const ECardCreator = () => {
 
   useEffect(() => {
     // Initialize storage on component mount
-    initializeStorage().catch(error => {
-      console.error("Failed to initialize storage:", error);
-      toast.error("Failed to initialize storage. Some features may not work properly.");
-    });
+    initializeStorage()
+      .then(() => {
+        console.log("Storage initialized successfully");
+      })
+      .catch(error => {
+        console.error("Failed to initialize storage:", error);
+        toast.error("Failed to initialize storage. Some features may not work properly.");
+      });
   }, []);
 
   useEffect(() => {
@@ -71,7 +75,13 @@ const ECardCreator = () => {
       // Only upload if the image is not already in Supabase storage
       if (imageUrl && !imageUrl.includes('supabase.co/storage/v1/object/public/ecard-images')) {
         console.log("Uploading image to storage before sending:", imageUrl);
-        finalImageUrl = await uploadImage(imageUrl);
+        try {
+          finalImageUrl = await uploadImage(imageUrl);
+        } catch (uploadError) {
+          console.error("Image upload failed, using original URL:", uploadError);
+          toast.warning("Could not save image to our servers. Using temporary image instead.");
+          finalImageUrl = imageUrl; // Fallback to original URL
+        }
       }
       
       const emailHtml = `
