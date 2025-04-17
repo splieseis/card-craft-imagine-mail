@@ -3,9 +3,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateImage } from "@/lib/replicate";
 import { AlertCircle, Loader2, RefreshCw, Wand2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageGeneratorProps {
   onImageGenerated: (url: string) => void;
@@ -23,13 +24,17 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
     
     setIsLoading(true);
     setError(null);
+    toast.info("Generating your image...");
     
     try {
       const imageUrl = await generateImage(prompt);
       onImageGenerated(imageUrl);
       setIsGeneratingFirstImage(false);
+      toast.success("Image generated successfully!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate image");
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate image";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +88,13 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error}
+            <p className="mt-2 text-sm">
+              Note: The application is currently using placeholder images due to API connectivity issues.
+            </p>
+          </AlertDescription>
         </Alert>
       )}
     </div>
