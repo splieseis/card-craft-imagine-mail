@@ -20,7 +20,9 @@ export const generateImage = async (prompt: string): Promise<string> => {
 
     try {
       // Upload image to Supabase storage
+      console.log("Uploading generated image to storage:", imageUrl);
       const storageUrl = await uploadImage(imageUrl);
+      console.log("Image uploaded to storage, URL:", storageUrl);
       
       try {
         // Store metadata in the database, but don't fail if this doesn't work
@@ -31,6 +33,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
             original_url: imageUrl,
             storage_url: storageUrl,
           });
+        console.log("Image metadata stored in database");
       } catch (dbError) {
         console.error('Error storing image metadata:', dbError);
         // Continue even if metadata storage fails

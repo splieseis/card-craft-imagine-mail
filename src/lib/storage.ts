@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const uploadImage = async (imageUrl: string): Promise<string> => {
   try {
+    console.log("Starting image upload from URL:", imageUrl);
     // Fetch the image from the URL
     const response = await fetch(imageUrl);
     if (!response.ok) {
@@ -20,6 +21,8 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     const randomId = Math.random().toString(36).substring(2, 10);
     const fileName = `ecard_${Date.now()}_${randomId}.png`;
     const filePath = `ecards/${fileName}`;
+    
+    console.log(`Uploading image as ${filePath}`);
     
     // Upload to Supabase storage with public policy
     const { data, error } = await supabase.storage
@@ -34,15 +37,15 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
       console.error("Error uploading image to storage:", error);
       
       // Fallback to just using the original URL if storage fails
-      // This ensures the app doesn't break completely
       return imageUrl;
     }
     
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const publicUrl = supabase.storage
       .from("ecard-images")
-      .getPublicUrl(filePath);
+      .getPublicUrl(filePath).data.publicUrl;
       
+    console.log("Successfully uploaded image. Public URL:", publicUrl);
     return publicUrl;
   } catch (error) {
     console.error("Error uploading image:", error);

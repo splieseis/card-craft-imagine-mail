@@ -23,6 +23,7 @@ const ECardCreator = () => {
   }, []);
 
   const handleImageGenerated = (url: string) => {
+    console.log("Image generated, setting URL:", url);
     setImageUrl(url);
     if (step === "image") setStep("message");
   };
@@ -49,11 +50,17 @@ const ECardCreator = () => {
 
     try {
       toast.info("Preparing your e-card...");
-      const uploadedUrl = await uploadImage(imageUrl!);
+      
+      // Make sure we're using the most up-to-date imageUrl
+      let finalImageUrl = imageUrl;
+      if (imageUrl && !imageUrl.includes('supabase')) {
+        console.log("Uploading image to storage before sending:", imageUrl);
+        finalImageUrl = await uploadImage(imageUrl);
+      }
       
       const emailHtml = `
         <div style="max-width: 600px; margin: 0 auto; font-family: sans-serif;">
-          <img src="${uploadedUrl}" alt="E-Card" style="width: 100%; border-radius: 8px;" />
+          <img src="${finalImageUrl}" alt="E-Card" style="width: 100%; border-radius: 8px;" />
           <div style="padding: 20px; border-radius: 0 0 8px 8px; background-color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <p style="white-space: pre-wrap; line-height: 1.6;">${message}</p>
           </div>
