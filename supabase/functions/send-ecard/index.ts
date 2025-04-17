@@ -28,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending email to:", to);
 
     const emailResponse = await resend.emails.send({
-      from: "E-Card <onboarding@resend.dev>",
+      from: "Simon <simon@plieseis.com>",
       to: [to],
       subject: subject,
       html: html,
@@ -56,3 +56,4 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+
