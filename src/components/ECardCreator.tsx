@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +23,7 @@ const ECardCreator = () => {
   const [step, setStep] = useState<"image" | "message" | "recipient">("image");
 
   useEffect(() => {
+    // Initialize storage on component mount
     initializeStorage().catch(error => {
       console.error("Failed to initialize storage:", error);
       toast.error("Failed to initialize storage. Some features may not work properly.");
@@ -66,7 +68,8 @@ const ECardCreator = () => {
       toast.info("Preparing your e-card...");
       
       let finalImageUrl = imageUrl;
-      if (imageUrl && !imageUrl.includes('supabase')) {
+      // Only upload if the image is not already in Supabase storage
+      if (imageUrl && !imageUrl.includes('supabase.co/storage/v1/object/public/ecard-images')) {
         console.log("Uploading image to storage before sending:", imageUrl);
         finalImageUrl = await uploadImage(imageUrl);
       }

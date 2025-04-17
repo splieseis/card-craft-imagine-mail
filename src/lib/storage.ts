@@ -8,6 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const uploadImage = async (imageUrl: string): Promise<string> => {
   try {
+    // If the image is already in Supabase storage, return it as is
+    if (imageUrl.includes('supabase.co/storage/v1/object/public/ecard-images')) {
+      console.log("Image already in Supabase storage, returning as is:", imageUrl);
+      return imageUrl;
+    }
+    
     console.log("Starting image upload from URL:", imageUrl);
     // Fetch the image from the URL
     const response = await fetch(imageUrl);
@@ -24,7 +30,7 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
     
     console.log(`Uploading image as ${filePath}`);
     
-    // Upload to Supabase storage with public policy
+    // Upload to Supabase storage
     const { data, error } = await supabase.storage
       .from("ecard-images")
       .upload(filePath, blob, {
@@ -40,7 +46,7 @@ export const uploadImage = async (imageUrl: string): Promise<string> => {
       return imageUrl;
     }
     
-    // Get public URL
+    // Get public URL - make sure we're using the right format
     const publicUrl = supabase.storage
       .from("ecard-images")
       .getPublicUrl(filePath).data.publicUrl;
