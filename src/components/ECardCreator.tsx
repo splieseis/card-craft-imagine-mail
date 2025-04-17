@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import CardPreview from "./CardPreview";
 import { uploadImage } from "@/lib/storage";
-import { sendEmail } from "@/lib/email";
+import { supabase } from "@/integrations/supabase/client";
 import { initializeStorage } from "@/config/supabase";
 import CreateTabContent from "./ecard/CreateTabContent";
 import PreviewActions from "./ecard/PreviewActions";
@@ -77,11 +78,15 @@ const ECardCreator = () => {
         </div>
       `;
 
-      await sendEmail({
-        to: recipientEmail,
-        subject: "You received an e-card!",
-        html: emailHtml,
+      const { error } = await supabase.functions.invoke('send-ecard', {
+        body: {
+          to: recipientEmail,
+          subject: "You received an e-card!",
+          html: emailHtml,
+        },
       });
+
+      if (error) throw error;
 
       toast.success("Your e-card has been sent successfully!");
       
