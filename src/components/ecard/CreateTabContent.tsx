@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight } from "lucide-react";
@@ -37,6 +36,13 @@ const CreateTabContent = ({
       
       {imageUrl && (
         <>
+          <div className="mt-4 rounded-lg overflow-hidden border border-muted">
+            <img 
+              src={imageUrl} 
+              alt="Generated e-card image" 
+              className="w-full h-auto" 
+            />
+          </div>
           <Separator />
           <StepIndicator step="message" />
           <MessageComposer value={message} onChange={onMessageChange} />
