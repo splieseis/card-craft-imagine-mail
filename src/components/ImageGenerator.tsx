@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { generateImage } from "@/lib/replicate";
-import { Loader2, RefreshCw } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw, Wand2 } from "lucide-react";
 
 interface ImageGeneratorProps {
   onImageGenerated: (url: string) => void;
@@ -14,6 +15,7 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingFirstImage, setIsGeneratingFirstImage] = useState(true);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +26,8 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
     
     try {
       const imageUrl = await generateImage(prompt);
-      if (imageUrl) {
-        onImageGenerated(imageUrl);
-      } else {
-        setError("No image was generated. Please try a different prompt.");
-      }
+      onImageGenerated(imageUrl);
+      setIsGeneratingFirstImage(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate image");
     } finally {
@@ -38,36 +37,54 @@ const ImageGenerator = ({ onImageGenerated }: ImageGeneratorProps) => {
   
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="image-prompt">
-          Describe the image you want for your e-card
-        </Label>
-        <div className="flex gap-2">
-          <Input
-            id="image-prompt"
-            placeholder="E.g., A beautiful sunset over mountains with colorful sky"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isLoading || !prompt.trim()}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            Generate
-          </Button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="image-prompt" className="font-medium">
+            Describe the image you want for your e-card
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="image-prompt"
+              placeholder="E.g., A beautiful sunset over mountains with colorful sky"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button
+              type="submit"
+              disabled={isLoading || !prompt.trim()}
+              className="whitespace-nowrap"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : isGeneratingFirstImage ? (
+                <>
+                  <Wand2 className="h-4 w-4 mr-2" />
+                  Generate
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Regenerate
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Detailed prompts create better images. Try mentioning style, mood, colors, etc.
+          </p>
         </div>
-      </div>
+      </form>
       
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CardPreviewProps {
   imageUrl: string | null;
@@ -10,7 +11,7 @@ interface CardPreviewProps {
 const CardPreview = ({ imageUrl, message, className }: CardPreviewProps) => {
   return (
     <div className={cn(
-      "w-full max-w-md mx-auto overflow-hidden rounded-lg border shadow-sm",
+      "w-full max-w-md mx-auto overflow-hidden rounded-lg border shadow-md transition-all",
       className
     )}>
       <div className="aspect-[3/2] bg-muted relative">
@@ -19,16 +20,17 @@ const CardPreview = ({ imageUrl, message, className }: CardPreviewProps) => {
             src={imageUrl} 
             alt="Generated card preview" 
             className="w-full h-full object-cover"
+            loading="eager"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            Image preview will appear here
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-muted-foreground">
+            <Skeleton className="w-full h-full" />
           </div>
         )}
       </div>
-      <div className="p-4 bg-white">
+      <div className="p-6 bg-white">
         {message ? (
-          <p className="whitespace-pre-wrap">{message}</p>
+          <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{message}</p>
         ) : (
           <p className="text-muted-foreground italic">Your message will appear here</p>
         )}
