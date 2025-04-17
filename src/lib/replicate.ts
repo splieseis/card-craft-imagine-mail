@@ -18,6 +18,28 @@ export const generateImage = async (prompt: string): Promise<string> => {
   try {
     // Define the model and input parameters
     const modelVersion = "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf";
+    
+    // Using ESM module import as specified
+    const replicateApi = new Replicate({
+      auth: REPLICATE_API_TOKEN,
+      fetch: async (url, options) => {
+        // Add CORS headers to the request
+        options = options || {};
+        options.headers = {
+          ...options.headers,
+          'Content-Type': 'application/json',
+        };
+        
+        console.log("Making fetch request to Replicate API:", url);
+        
+        // Use actual fetch with custom options
+        return fetch(`https://esm.sh/proxy/https://api.replicate.com${url.toString().replace("https://api.replicate.com", "")}`, options);
+      }
+    });
+    
+    console.log("Calling Replicate API with prompt:", prompt);
+    
+    // Define input parameters for the model
     const input = {
       prompt: prompt,
       width: 768,
@@ -27,20 +49,8 @@ export const generateImage = async (prompt: string): Promise<string> => {
       num_inference_steps: 50,
     };
     
-    // Use a mock image URL for development/testing purposes
-    // This helps bypass CORS issues in development environments
-    if (import.meta.env.DEV) {
-      console.log("DEV mode: Using mock image instead of calling Replicate API");
-      // Return a placeholder image URL
-      return "https://picsum.photos/768/512";
-    }
-    
-    // In production, we would implement a backend proxy or serverless function
-    // that makes the API call to Replicate on behalf of the client
-    // For now, we're still trying with direct call but with more logging
-    console.log("Calling Replicate API with prompt:", prompt);
-    
-    const output = await replicate.run(modelVersion, { input });
+    // Run the model with the input parameters
+    const output = await replicateApi.run(modelVersion, { input });
     
     // The API returns an array of image URLs
     const imageUrl = Array.isArray(output) ? output[0] : "";
@@ -54,8 +64,13 @@ export const generateImage = async (prompt: string): Promise<string> => {
   } catch (error) {
     console.error("Error generating image:", error);
     
-    // For testing purposes, return a placeholder image when the API fails
-    console.log("Falling back to placeholder image");
-    return "https://picsum.photos/768/512";
+    // Still provide fallback for complete failure cases
+    if (error instanceof Error && error.message.includes("Failed to fetch")) {
+      console.log("Network error when calling Replicate API, using placeholder");
+      return "https://picsum.photos/768/512";
+    }
+    
+    // Re-throw the error so it can be handled by the component
+    throw error;
   }
 };
